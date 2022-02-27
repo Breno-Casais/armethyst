@@ -17,5 +17,5 @@ Para compilar o código há três opções.
 	
 	g++ -std=c++14 -I./include -o armethyst.exe armethyst.cpp Memory.cpp Processor.cpp
 
-
+breno feio
 oie 
