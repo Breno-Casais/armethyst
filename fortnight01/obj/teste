@@ -1,0 +1,103 @@
+# Universidade Federal de Lavras
+# GCC117 - Arquitetura de Computadores I
+# Prof. André Vital Saúde
+
+# prog04.s - chamadas de procedimentos em linguagem de
+# montagem (assembly) do MIPS, comentado.
+
+# Programa em C: calcula x = m*n fazendo a chamda à função
+# mult, que faz o cálculo com somas iterativas
+
+# int x;
+# int m = 3;
+# int n = 4;
+#
+# void main() {
+#   x = mult(m,n);
+# }
+#
+# int mult(int m, int n) {
+#   int x;
+#   for(x=0;m>0;m--) {
+#     x += n;
+#   }
+#   return x;
+# }
+#
+
+# O programa em assembly para um MONTADOR do MIPS está no
+# arquivo 'prog04.s'.
+
+# Este programa foi adaptado para o INTERPRETADOR MIPS
+# disponível em https://dannyqiu.me/mips-interpreter/.
+
+# O interpretador NÃO CONHECE as diretivas e pseudo-instruções
+# do MIPS. Por isso:
+#    1. as variáveis 'm' e 'n' são inicializadas diretamente em
+#       registradores.
+#    2. O endereço da variável 'x' foi definido arbitrariamente
+#       como 0x0001A000.
+#    3. Foi acrescentada a inicialização da pilha para o endereço
+#       0x00010000.
+#    4. No simulador o main não é uma função. Por isso $ra não é
+#       de fato usado. Foi inicializado com o valor arbitrário
+#       0xAAAA0000. Da mesma forma, main não termina com jr $ra.
+
+##############################################################
+# Atividade:
+#   1. copie todo este texto para a área 'Input your MIPS code
+#      here'
+#   2. Execute passo a passo (step) o programa e observe, a
+#      cada passo:
+#        2.1. a alteração do valor do endereço 0x00010000 da
+#             memória, que é a primeira posição da pilha (digite
+#             00010000 no campo 'Memory Address' e clique GO)
+#        2.2. a alteração do registrador $sp nos momentos de
+#             empilhamento e desempilhamento.
+#        2.3. a alteração do registrador $ra após a execução da
+#             instrução jal e após o retorno de mult, com seu
+#             desempilhamento.
+##############################################################
+
+_main:
+# inicializa $sp, topo da pilha
+	lui $sp, 0x0001
+	lui $ra, 0xAAAA
+	
+# inicializa m e n nos registradores $a0 e $a1, que serão
+# argumentos para a função mult
+	addiu $a0, $zero, 0x3 	#m = $a0 = 0x3
+	addiu $a1, $zero, 0x4 	#n = $a1 = 0x4
+
+	sw $ra, 0($sp)			#empilha $ra (salva $ra)
+	addiu $sp,$sp,-4		#empilha $ra (atualiza pilha)
+	jal _mult
+	nop						# delay do interpretador
+	addiu $sp,$sp,4			#desempilha $ra (decrementa ponteiro da pilha)
+	sw $ra, 0($sp)			#desempilha $ra (recupera $ra)
+	
+# x será o endereço 0x0001A000 da memória
+	lui $t2, 0x0001  		#$t2 <- metade esquerda de &x
+	ori $t2, $t2, 0xA000  	#$t2 <- metade direita de &x
+	sw $v0,0($t2)	 		#x<-$v0 (m*n) 
+
+# retorna do main
+	j final					#substitui jr $ra
+	nop						#delay do interpretador
+
+# função mult: faz $v0=$a0*$a1 (x=m*n) com somas iterativas
+_mult:
+	lui $v0,0				#$v0<-0
+for:
+	blez $a0,saimult 		# se m<=0 sai
+	nop						# delay do interpretador
+	addu $v0,$v0,$a1 		# x+=n
+	addiu $a0,$a0,-1 		# m--
+	j for
+	nop						#delay do interpretador
+saimult:
+	jr $ra
+	nop						#delay do interpretador
+
+final:						#para finalizar a simulação
+	nop
