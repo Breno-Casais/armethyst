@@ -56,3 +56,4 @@ main:
 	ret
 	.size	main, .-main
 	.ident	"GCC: (GNU Toolchain for the A-profile Architecture 8.3-2019.03 (arm-rel-8.36)) 8.3.0"
+	testando
