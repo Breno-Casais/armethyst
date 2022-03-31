@@ -32,7 +32,7 @@ main:
 	sub	sp, sp, #16
 	str	wzr, [sp, 12]
 	b	.L2
-.L3:
+.L3: 
 	adrp	x0, v
 	add	x0, x0, :lo12:v
 	ldrsw	x1, [sp, 12]

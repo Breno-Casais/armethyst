@@ -117,6 +117,11 @@ int BasicCPU::ID()
 			break;
 		// case TODO
 		// x101 Data Processing -- Register on page C4-278
+		case 0x0A000000: // 0000 1010 0000....
+		case 0x1A000000: // 0001 1010 0000....
+			return decodeDataProcReg();
+			break;
+
 		default:
 			return 1; // instrução não implementada
 	}
@@ -230,6 +235,73 @@ int BasicCPU::decodeDataProcReg() {
 	
 	
 	// instrução não implementada
+
+	//IMPLEMENTAR O REO P03 AQUI
+	
+	unsigned int n, m, imm6, shift;
+	
+	
+	//REO P03 
+	// aqui entra a mascara para add (shifted register) que sera 0xFF200000 (1111 1111 0010 0000 ....)
+	switch (IR & 0xFF200000) // mascara 
+	{
+		
+		//Case 1 = 0x8B000000 para sf=1 (64bit) 
+		//case 2 = 0x0B000000 para sf=0 (32bit)
+		
+		case 0x8B000000:  //1000 1011 0000...
+		case 0x0B000000:  //0000 1011 0000...
+		
+			// add (shifted register) - 32-bit 
+			
+			if (IR & 0x80000000) return 1; // sf = 1 não implementado (64bit)
+			
+			// ler A e B
+			n = (IR & 0x000003E0) >> 5; //Lê Rn e desloca 5>
+			A = getW(n);
+			
+			m = (IR & 0x001F0000) >> 16; //Lê Rm e desloca 16> 
+			int auxB;
+			auxB = getW(m);
+			
+			imm6 = (IR & 0x0000FC00) >> 10;
+			shift = (IR & 0x00C00000) >> 22;
+			
+		
+			
+			switch (shift){
+				//B será deslocado o valor do imediato
+				case 0: //Caso 00 LSL (sofre o deslocamento do imediato para esquerda)
+				B = auxB << imm6;
+				break;
+				
+				case 1: //Caso 01 LSR (sofre o deslocamento do imediato para direita)
+				B = auxB >> imm6;
+				break;
+					
+				case 2: //Caso 10 ASR (sofre o deslocamento aritmetico mantendo o sinal para direita)
+				B = ((signed long)auxB) >> imm6;
+				break;
+				
+				default:
+					return 1;
+			}
+			
+			
+			// atribuir ALUctrl
+			ALUctrl = ALUctrlFlag::ADD;
+			
+			// atribuir MEMctrl
+			MEMctrl = MEMctrlFlag::MEM_NONE;
+			
+			// atribuir WBctrl
+			WBctrl = WBctrlFlag::RegWrite;
+			
+			// atribuir MemtoReg
+			MemtoReg = false;
+			
+			return 0;
+	}
 	return 1;
 }
 
