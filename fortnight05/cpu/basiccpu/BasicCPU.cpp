@@ -127,11 +127,53 @@ int BasicCPU::ID()
 		// implementar o GRUPO A SEGUIR
 		//
 		// 101x Loads and Stores on page C4-237
+		//implentar Loads
+		//implentar Stores
 
+		// x110 Data Processing -- Register on page C4-278
+		case 0x1C000000:
+		case 0x1E000000:
+			return decodeDataProcReg();
+			break;
+		// x111 Data Processing -- Register on page C4-278
+		case 0x1E800000:
+		case 0x1F800000:
+			return decodeDataProcReg();
+			break;
+		// x111 Data Processing -- Register on page C4-278
+		case 0x1F000000:
+		case 0x1F400000:
+			return decodeDataProcReg();
+			break;
+		// implentar o GRUPO A SEGUIR
+		//
+		// 111x Loads and Stores on page C4-237
+		//implentar Stores
+		//implentar Loads
+
+		// xxxx Data Processing -- Immediate on page C4-278
+		case 0x0C000000:
+		case 0x0E000000:
+			return decodeDataProcImm();
+			break;
+		// xxxx Data Processing -- Immediate on page C4-278
+		case 0x0E800000:
+		case 0x0F800000:
+			return decodeDataProcImm();
+			break;
+		// xxxx Data Processing -- Immediate on page C4-278
+		case 0x0F000000:
+		case 0x0F400000:
+			return decodeDataProcImm();
+			break;
+		// xxxx Data Processing -- Immediate on page C4-278
 		
-		// ATIVIDADE FUTURA
-		// implementar os demais grupos
-		
+
+
+
+
+
+
 		default:
 			return 1; // instrução não implementada
 	}
@@ -279,7 +321,27 @@ int BasicCPU::decodeDataProcReg() {
 			ALUctrl = ALUctrlFlag::ADD;
 			
 			// TODO:
-			// implementar informações para os estágios MEM e WB.
+			// atribuir MEMctrl
+			MEMctrl = MEMctrlFlag::MEM_NONE;
+			// atribuir WBctrl
+			WBctrl = WBctrlFlag::RegWrite;
+			// atribuir MemtoReg
+			MemtoReg = false;
+			// acrescentar switches e cases à medida em que forem sendo
+			// adicionadas implementações de instruções de processamento
+			// de dados por registrador.
+			switch (IR & 0xFF200000)
+			{
+				case 0x8B000000:
+					//1 1 0 ADD (shifted register) - 64-bit variant on page C6-688
+					return 0;
+				case 0x0B000000:
+					//1 1 0 ADD (shifted register) - 64-bit variant on page C6-688
+					return 0;
+				default:
+					return 1;
+			}
+			
 
 			return 0;
 	}
@@ -379,14 +441,20 @@ int BasicCPU::EXI()
 		case ALUctrlFlag::SUB:
 			ALUout = A - B;
 			return 0;
-		//case ALUctrlFlag::ADD:
+		case ALUctrlFlag::ADD:
+			ALUout = A + B;
+			return 0;
 		// TODO
+		// implementar os outros tipos de controle de ALUctrl
 		default:
 			// Controle não implementado
 			return 1;
 	}
-	
-	// Controle não implementado
+
+	//implementar o resto dos controles
+
+
+
 	return 1;
 };
 
@@ -444,22 +512,22 @@ int BasicCPU::MEM()
 	// com as chamadas aos métodos corretos que implementam cada caso de acesso
 	// à memória de dados.
 
-	//switch (MEMctrl) {
-	//case MEMctrlFlag::READ32:
-		//MDR = memory->readData32(ALUout);
-		//return 0;
-	//case MEMctrlFlag::WRITE32:
-		//memory->writeData32(ALUout,*Rd);
-		//return 0;
-	//case MEMctrlFlag::READ64:
-		//MDR = memory->readData64(ALUout);
-		//return 0;
-	//case MEMctrlFlag::WRITE64:
-		//memory->writeData64(ALUout,*Rd);
-		//return 0;
-	//default:
-		//return 0;
-	//}
+	switch (MEMctrl) {
+	case MEMctrlFlag::READ32:
+		MDR = memory->readData32(ALUout);
+		return 0;
+	case MEMctrlFlag::WRITE32:
+		memory->writeData32(ALUout,*Rd);
+		return 0;
+	case MEMctrlFlag::READ64:
+		MDR = memory->readData64(ALUout);
+		return 0;
+	case MEMctrlFlag::WRITE64:
+		memory->writeData64(ALUout,*Rd);
+		return 0;
+	default:
+		return 0;
+	}
 
 	return 1;
 }
@@ -479,20 +547,20 @@ int BasicCPU::WB()
 	// com as atribuições corretas do registrador destino, quando houver, ou
 	// return 0 no caso WBctrlFlag::WB_NONE.
 	
-    //switch (WBctrl) {
-        //case WBctrlFlag::WB_NONE:
-            //return 0;
-        //case WBctrlFlag::RegWrite:
-            //if (MemtoReg) {
-                //*Rd = MDR;
-            //} else {
-                //*Rd = ALUout;
-            //}
-            //return 0;
-        //default:
-             ////não implementado
+    switch (WBctrl) {
+        case WBctrlFlag::WB_NONE:
+            return 0;
+        case WBctrlFlag::RegWrite:
+            if (MemtoReg) {
+                *Rd = MDR;
+            } else {
+                *Rd = ALUout;
+            }
+            return 0;
+        default:
+            //controle não implementado
             return 1;
-    //}
+    }
 }
 
 
