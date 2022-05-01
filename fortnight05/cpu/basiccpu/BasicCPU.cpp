@@ -129,7 +129,8 @@ int BasicCPU::ID()
 		// 101x Loads and Stores on page C4-237
 		//implentar Loads
 		//implentar Stores
-
+		//implentar Loads and Stores
+		
 		// x110 Data Processing -- Register on page C4-278
 		case 0x1C000000:
 		case 0x1E000000:
@@ -145,9 +146,7 @@ int BasicCPU::ID()
 		case 0x1F400000:
 			return decodeDataProcReg();
 			break;
-		// implentar o GRUPO A SEGUIR
-		//
-		// 111x Loads and Stores on page C4-237
+
 		//implentar Stores
 		//implentar Loads
 
@@ -168,15 +167,28 @@ int BasicCPU::ID()
 			break;
 		// xxxx Data Processing -- Immediate on page C4-278
 		
+		//implentar Stores on page C4-237
+		//implentar Loads on page C4-237
+
+		// xxxx Data Processing -- Register on page C4-278
+		case 0x0A800000:
+		case 0x0B800000:
+			return decodeDataProcReg();
+			break;
+		// xxxx Data Processing -- Register on page C4-278
+
+			// implentar Stores
 
 
 
 
-
-
+			
 		default:
 			return 1; // instrução não implementada
 	}
+	//
+		
+
 };
 
 /**
