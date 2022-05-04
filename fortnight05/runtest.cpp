@@ -94,7 +94,7 @@ int main()
 	//	Como não temos todas as instruções implementadas, faremos apenas testes.
 	test01(cpu, memory, TEST_FILE_01);
 	//~ test02(cpu, memory, TEST_FILE_02);
-	//~ test03(cpu, memory, TEST_FILE_03);
+	 test03(cpu, memory, TEST_FILE_03);
 	//~ test04(cpu, memory, TEST_FILE_04);
 	test05(cpu, memory, TEST_FILE_05);
 	
